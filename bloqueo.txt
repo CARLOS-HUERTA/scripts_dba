@@ -1,0 +1,54 @@
+------------------------------------------------------
+-- Quien Bloquea...!
+------------------------------------------------------
+
+SELECT o.owner, o.object_name, o.object_type, o.last_ddl_time, o.status, l.session_id, l.oracle_username, l.locked_mode
+FROM dba_objects o, gv$locked_object l
+WHERE o.object_id = l.object_id;
+
+
+SELECT oracle_username || ' (' || s.osuser || ')' username
+    ,  s.sid || ',' || s.serial# sess_id
+    ,  owner || '.' || object_name object
+    ,  object_type
+    ,  decode( l.block
+       ,       0, 'Not Blocking'
+       ,       1, 'Blocking'
+       ,       2, 'Global') status
+    ,  decode(v.locked_mode
+      ,       0, 'None'
+      ,       1, 'Null'
+      ,       2, 'Row-S (SS)'
+      ,       3, 'Row-X (SX)'
+      ,       4, 'Share'
+      ,       5, 'S/Row-X (SSX)'
+      ,       6, 'Exclusive', TO_CHAR(lmode)) mode_held
+FROM v$locked_object v,dba_objects d,v$lock l,v$session s
+WHERE v.object_id = d.object_id
+   and v.object_id = l.id1
+   and v.session_id = s.sid
+ORDER BY oracle_username,session_id
+
+
+alter system kill session '197,12649' immediate
+-----
+Pero si lo anterior fallase buscaría por medio de esta SQL el  SPID que es el número de proceso de Linux/unix que usaría para matar el proceso a nivel de S.O.
+--
+SELECT s.sid, p.spid, s.osuser, s.program
+FROM   v$process p, v$session s
+WHERE  p.addr = s.paddr;
+---
+La consulta anterior me muestra todos los procesos, buscaría el SID del proceso que quiero matar y me anotaría el campo SPID que es el que definitivamente usaré para matar el proceso. Pero si quiero sólo buscar el SID de la que quiero matar, ejecutaría:
+
+SELECT s.sid, p.spid, s.osuser, s.program
+FROM   v$process p, v$session s
+WHERE  p.addr = s.paddr and s.sid = '215'; --> SID basado en mi ejemplo
+Para saber cual es el SPID busco con el campo SID que me salia en la primera consulta. Es el primer valor antes de la “,” que uso en el” alter kill session …”
+
+Para matar el proceso a nivel de S.O en mi caso un Linux. Se hace así:
+
+Conectado como root al linux …
+
+# ps -ef |grep  <SPID> --> Donde SPID es el número de proceso
+# kill -9 <SPID>
+
