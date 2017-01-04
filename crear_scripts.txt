@@ -1,0 +1,34 @@
+---------------------------------------------------------------------------------------------------
+--Construcción de scripts Oracle SQL con ayuda del diccionario
+---------------------------------------------------------------------------------------------------
+Submitted by carlos on 7 June, 2007 - 22:12 SQL Oracle automatizacion Oracle SQL Oracle Bases de datos
+Es bastante habitual si se trabaja con bases de datos que a menudo se tenga que realizar alguna tarea de creación o alteración de estructuras, análisis, recompilación, etc. sobre objetos de la base de datos. Para ello se suele crear un script con numerosas sentencias DDL, en las que la mayoría de las veces lo único que cambia es el nombre del objeto a tratar.
+
+**Crear sentencia Oracle SQL que genera sentencias Oracle
+
+En estos casos puede ahorrarnos mucho trabajo la utilización del diccionario de la base de datos para construir estas sentencias dinámicamente. Pondremos como ejemplo la creación de un nuevo campo para almacenar la fecha de creación de los registros en todas las tablas de un esquema de una base de datos ORACLE. Para ello utilizaríamos la siguiente sentencia de SQL Oracle:
+SELECT 'ALTER TABLE ' || OWNER || '.' || TABLE_NAME || ' ADD FECHA_CREACION DATE DEFAULT SYSDATE;' 
+FROM ALL_TABLES WHERE OWNER ='HR'; 
+El resultado de esta sentencia SQL Oracle sería algo como esto, las sentencias SQL que queremos utilizar en realidad:
+ALTER TABLE HR.DEPARTMENTS ADD FECHA_CREACION DATE DEFAULT SYSDATE;
+ALTER TABLE HR.EMPLOYEES ADD FECHA_CREACION DATE DEFAULT SYSDATE;
+ALTER TABLE HR.JOB_HISTORY ADD FECHA_CREACION DATE DEFAULT SYSDATE;
+ALTER TABLE HR.JOBS ADD FECHA_CREACION DATE DEFAULT SYSDATE;
+ALTER TABLE HR.LOCATIONS ADD FECHA_CREACION DATE DEFAULT SYSDATE;
+ALTER TABLE HR.REGIONS ADD FECHA_CREACION DATE DEFAULT SYSDATE;
+ALTER TABLE HR.COUNTRIES ADD FECHA_CREACION DATE DEFAULT SYSDATE;
+ 
+**Crear script con Oracle SQL para ejecutar sentencias SQL
+
+Ahora sólo restaría guardar estas sentencias en un script y ejecutarlo, o lanzarlas directamente desde la aplicación que utilicemos para interactuar con nuestra base de datos.
+Para el que tenga que (o prefiera) trabajar desde un terminal o linea de comandos, la manera de hacer esto mismo con SQLPLUS sería la siguiente:
+SQL> SET HEADING OFF
+SQL> SET FEEDBACK OFF
+SQL> SPOOL C:\campo_auditoria.sql
+SQL> SELECT 'ALTER TABLE ' || OWNER || '.' || TABLE_NAME || ' ADD FECHA_CREACION DATE DEFAULT SYSDATE;'
+     FROM ALL_TABLES WHERE OWNER ='HR';
+SQL> SPOOL OFF;
+SQL> SET FEEDBACK ON
+SQL> SET HEADING ON 
+Y finalmente ejecutar el script generado, aunque es recomendable una revisión previa de las sentencias generadas:
+ SQL> @C:\campo_auditoria.sql 

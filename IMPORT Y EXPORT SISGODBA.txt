@@ -1,0 +1,99 @@
+----------------------------------------------------------
+-- version oracle 10g
+----------------------------------------------------------
+expdp userid=sisgodba/sisgodba@DB11G1 directory=data dumpfile=bk03112016DB11G1.dmp logfile=bk03112016DB11G1.log schemas=SISGODBA version=11.1 compression=metadata_only content=all estimate=blocks
+
+impdp userid=sisgodba/sisgodba@ORCLBDJD directory=datajd dumpfile=bk03112016DB11G1.dmp logfile=IMP_bk03112016DB11G1.log schemas=SISGODBA
+
+----------------------------------------------------------
+-- version oracle 11g
+----------------------------------------------------------
+SQL> create directory expdp_dir as '/u01/backup/exports';
+
+Una vez creado le daremos permisos de lectura y escritura a los usuarios que usen data pump export y import:
+
+SQL> grant read,write on directory expdp_dir to system, user1, user2;
+
+
+
+DPacifico20160718.dmp
+
+impdp userid=SISGODBA/SISGODBA directory=expdp_dir dumpfile=DPacifico20160718.dmp logfile=DPacifico20160718.log schemas=SISGODBA
+
+--------
+
+expdp userid=SISGODBA/SISGODBA@DBPRUEBA directory=dataexport dumpfile=dbprueba.dmp logfile=dbprueba.log schemas=SISGODBA version=11.1 compression=metadata_only content=all estimate=blocks
+
+
+expdp userid=SISGODBA/SISGODBA directory=/home/oracle/backup dumpfile=dbprueba.dmp logfile=dbprueba.log schemas=SISGODBA version=11.1 compression=metadata_only content=all estimate=blocks
+
+
+
+
+SQL> CREATE DIRECTORY dp AS '.../datapump';
+SQL> GRANT EXP_FULL_DATABASE  to system;
+SQL> GRANT READ, WRITE ON DIRECTORY dp to system;
+
+
+
+
+create directory expdp_dir as '/home/oracle';
+grant read,write on directory expdp_dir to system, sys, sisgodba;
+
+expdp userid=SISGODBA/SISGODBA directory=expdp_dir dumpfile=dbprueba.dmp logfile=dbprueba.log schemas=SISGODBA version=11.1 compression=metadata_only content=all estimate=blocks
+
+expdp userid=SISGODBA/SISGODBA@DBPRUEBA directory=expdp_dir dumpfile=EXP_prueba.dmp logfile=EXP_prueba.log schemas=SISGODBA version=11.1 compression=metadata_only content=all estimate=blocks
+--------------
+
+SQL> create directory impdp_dir as '/home/oracle';
+
+SQL> grant read,write on directory impdp_dir to system, sys, SISGODBA;
+
+-----------------
+DROP DIRECTORY DATA;
+
+CREATE OR REPLACE DIRECTORY 
+DATA AS 
+'/u01/back/';
+
+
+GRANT EXECUTE, READ, WRITE ON DIRECTORY DATA TO SISGODBA WITH GRANT OPTION;
+
+GRANT EXECUTE, READ, WRITE ON DIRECTORY DATA TO SYSTEM WITH GRANT OPTION;
+----
+DROP DIRECTORY DATA;
+
+CREATE OR REPLACE DIRECTORY 
+DATA AS 
+'/home/oracle/';
+
+
+GRANT EXECUTE, READ, WRITE ON DIRECTORY DATA TO SISGODBA WITH GRANT OPTION;
+
+GRANT EXECUTE, READ, WRITE ON DIRECTORY DATA TO SYSTEM WITH GRANT OPTION;
+-----------------------
+
+
+impdp userid=SISGODBA/SISGODBA directory=DATA dumpfile=DPacifico20160718.dmp logfile=DPacifico20160718.log schemas=SISGODBA
+
+------------
+imp SISGODBA/SISGODBA@DBPRUEBA file=C:\Users\CARLOS\Desktop\BK\D
+Pacifico20160718.dmp fromuser=SISGODBA touser=SISGODBA grants=yes indexes=yes
+
+C:\Users\CARLOS>imp SISGODBA/SISGODBA@DBPRUEBAS file=C:\Users\CARLOS\Desktop\BK\
+DPacifico20160718.dmp fromuser=SISGODBA touser=SISGODBA grants=yes statistics=no
+------------
+imp SISGODBA/SISGODBA file=/home/oracle/DPacifico20160718.dmp fromuser=SISGODBA touser=SISGODBA grants=yes indexes=yes
+
+C:\Users\CARLOS>imp SISGODBA/SISGODBA@DBPRUEBAS file=C:\Users\CARLOS\Desktop\BK\
+DPacifico20160718.dmp fromuser=SISGODBA touser=SISGODBA grants=yes statistics=no
+--------------------------------
+DPacifico20161206.dmp
+
+impdp userid=SISGODBA/SISGODBA directory=DATA dumpfile=DPacifico20161206.dmp logfile=DPacifico20161206.log schemas=SISGODBA
+
+
+imp SISGODBA/SISGODBA file=/home/oracle/DPacifico20161206.dmp fromuser=SISGODBA touser=SISGODBA grants=yes indexes=yes
+
+
+
